@@ -1,0 +1,73 @@
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Technology Watch</title>
+    <link rel="shortcut icon" type="image/png" href="{% static "img/favicon.png" %}"/>
+
+    <link rel="stylesheet" href="{% static "css/font-awesome.css" %}">
+    <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pacifico|Mina">
+</head>
+<body>
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top navbar-inverse">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-collapse collapse" id="navbar">
+        <ul class="nav navbar-nav">
+            {% block navbar_left_side %}
+            {% endblock %}
+        </ul>
+
+        <ul class="navbar-nav ml-auto" id="nav-center">
+            {% block navbar_center %}
+            {% endblock %}
+        </ul>
+
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="modal" data-target="#create-topic-modal"><i class="fa fa-plus"></i> Créer</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="modal" data-target="#login-modal"><i class="fa fa-sign-in-alt"></i> Se Connecter</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+{% include "modals/new_topic.html" %}
+{% include "modals/login.html" %}
+{% include "modals/message.html" %}
+
+{% block content %}
+{% endblock %}
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
+<script src="{% static "js/popper.min.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+
+<script src="{% static "js/typeahead.bundle.min.js" %}"></script>
+<script src="{% static "js/main.js" %}"></script>
+
+{% if error %}
+    <script>
+        $("#message-modal .modal-title").text("Erreur");
+        $("#message-modal .modal-body").html("{{ error }}");
+        $("#message-modal").modal('toggle');
+    </script>
+{% endif %}
+</body>
+</html>

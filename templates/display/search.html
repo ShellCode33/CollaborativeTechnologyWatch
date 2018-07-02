@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block navbar_left_side %}
+    <li class="nav-item" id="nav-item-home">
+        <a class="nav-link" href="/#home">Accueil</a>
+    </li>
+    <li class="nav-item" id="nav-item-news">
+        <a class="nav-link" href="/#news">Actualités</a>
+    </li>
+    <li class="nav-item" id="nav-item-tags">
+        <a class="nav-link" href="/#tags">Tags</a>
+    </li>
+{% endblock %}
+
+{% block content %}
+    {% if search_error %}
+        <div class="container" id="tag-container">
+            <div class="row tag-header">
+                <div class="col-12 text-center">
+                    <h2 style="font-size: 2.5rem;">{{ search_error }}</h2>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container" id="tag-container">
+            <div class="row tag-header">
+                <div class="col-12 text-center">
+                    <h2 style="font-size: 2.5rem;">Search results for "{{ query }}"</h2>
+                </div>
+            </div>
+
+            <br /><br />
+
+            {% if topics_found %}
+                <div class="row text-left">
+                    <div class="col-12">
+                        <h2>Sujets :</h2>
+
+                        <div class="list-group">
+                            {% for topic in topics_found %}
+                                <a href="/topic/{{ topic.id }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ topic.name }}</h5>
+                                        <span class="badge badge-success badge-pill">{{ topic.upvote_count }} ont aimé.</span>
+                                    </div>
+                                    <p class="mt-2 mb-2">{{ topic.description }}</p>
+                                    <small>3 days ago, by cfy</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br /><br />
+            {% endif %}
+
+            {% if tags_found %}
+                <div class="row" id="tags">
+                    <div class="col-12">
+                        <h2 class="text-left">Tags :</h2>
+                    </div>
+
+                    {% for tag in tags_found %}
+                        <div class="col-6 col-md-3 col-lg-2 tag-column default-padding">
+                            <a href="/tag/{{ tag.id }}">
+                                <div class="tag">
+                                    <div class="img-tag-wrapper">
+                                        <img src="{{ tag.picture_url }}" alt="{{ tag.name }}" class="tag-img">
+                                    </div>
+
+                                    <h2>{{ tag.name }}</h2>
+                                    <span class="badge badge-pill badge-success">&nbsp;{{ tag.used_count }}&nbsp;</span>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

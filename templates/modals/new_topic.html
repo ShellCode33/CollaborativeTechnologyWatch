@@ -1,0 +1,46 @@
+<div class="modal fade" id="create-topic-modal" tabindex="-1" role="dialog" aria-labelledby="create-topic-title" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="create-topic-title">Nouveau sujet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/topic/new/" method="POST" id="new-topic-form">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="title-input">Intitulé</label>
+                        <input name="title" type="text" maxlength="100" class="form-control" id="title-input" placeholder="Ex: Attaque RowHammer...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description-input">Description</label>
+                        <textarea name="description" maxlength="2000" class="form-control" id="description-input" rows="2" placeholder="2000 caractères max."></textarea>
+                    </div>
+
+                    <label for="tags-input">Tags</label>
+                    <div id="tags-input">
+                        <span class="badge badge-success">Tag1<i class="remove-tag fa fa-times fa-white"></i></span>
+                        <input type="text" maxlength="20" />
+                    </div>
+
+                    Ajouter une ressource :
+                    <div class="input-group mb-3">
+                        <input name="link-name" autocomplete="off" maxlength="100" type="text" class="form-control" placeholder="Nom ressource...">
+                        <input name="link" autocomplete="off" maxlength="2000" type="text" class="form-control" placeholder="Lien ressource...">
+                        <div class="input-group-append">
+                            <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="create-new-topic-button">Créer</button>
+            </div>
+        </div>
+    </div>
+</div>

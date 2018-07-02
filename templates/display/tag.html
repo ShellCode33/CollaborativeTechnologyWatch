@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block navbar_left_side %}
+<li class="nav-item" id="nav-item-home">
+    <a class="nav-link" href="/#home">Accueil</a>
+</li>
+<li class="nav-item" id="nav-item-news">
+    <a class="nav-link" href="/#news">Actualités</a>
+</li>
+<li class="nav-item" id="nav-item-tags">
+    <a class="nav-link" href="/#tags">Tags</a>
+</li>
+{% endblock %}
+
+{% block content %}
+    <div class="container" id="tag-container">
+        <div class="row tag-header">
+            <div class="col-12 text-center">
+                <img class="tag-img" style="max-height: 200px;" src="{{ tag.picture_url }}" alt="{{ tag.name }}">
+                <h2>{{ tag.name }}</h2>
+            </div>
+        </div>
+
+        <br /><br />
+
+        <div class="row text-left">
+            <div class="col-12">
+                <h2>Sujets en relation :</h2>
+
+                <div class="list-group">
+                    {% for topic in related_topics %}
+                        <a href="/topic/{{ topic.id }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ topic.name }}</h5>
+                                <span class="badge badge-success badge-pill">{{ topic.likes_count }} ont aimé.</span>
+                            </div>
+                            <p class="mt-2 mb-2">{{ topic.description }}</p>
+                            <small>3 days ago, by cfy</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

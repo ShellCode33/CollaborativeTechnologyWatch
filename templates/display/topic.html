@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block navbar_left_side %}
+    <li class="nav-item" id="nav-item-home">
+        <a class="nav-link" href="/#home">Accueil</a>
+    </li>
+    <li class="nav-item" id="nav-item-news">
+        <a class="nav-link" href="/#news">Actualités</a>
+    </li>
+    <li class="nav-item" id="nav-item-tags">
+        <a class="nav-link" href="/#tags">Tags</a>
+    </li>
+{% endblock %}
+
+{% block navbar_center %}
+    {% csrf_token %}
+    <li class="nav-item mr-4"><div style="padding: .5rem .1rem;">{{ likes_count }} personnes aiment ce sujet.</div></li>
+    <li><button class="nav-item btn btn-success" id="like-button">J'aime</button></li>
+{% endblock %}
+
+{% block content %}
+    <div id="topic_id">{{ topic.id }}</div>
+    <section class="container text-left" id="displayed-topic">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 id="home-title">{{ topic.name }}</h2>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-6 vertical-separator default-padding">
+                <h3><u>Description :</u></h3>
+                <p>{{ topic.description }}</p>
+            </div>
+
+            <div class="col-6 default-padding">
+                <h3><u>Ressources :</u></h3>
+                <span id="resources">
+                    {% for resource in resources %}
+                        <a class="btn btn-success resource-button" href="{{ resource.link }}" target="_blank">{{ resource.name }}</a>
+                    {% endfor %}
+                </span>
+
+                <br />
+                <br />
+
+                Ajouter une ressource :
+                <form id="add-resource-form" class="input-group mb-3">
+                    {% csrf_token %}
+                    <input name="link-name" autocomplete="off" maxlength="100" type="text" class="form-control" placeholder="Nom ressource...">
+                    <input name="link" autocomplete="off" maxlength="2000" type="text" class="form-control" placeholder="Lien ressource...">
+                    <div class="input-group-append">
+                        <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <h3><u>Tags associés :</u></h3>
+        <div class="row text-center" id="tags">
+            {% for tag in tags %}
+                <div class="col-6 col-md-3 col-lg-2 tag-column default-padding">
+                    <a href="/tag/{{ tag.id }}">
+                        <div class="tag">
+                            <div class="img-tag-wrapper">
+                                <img src="{{ tag.picture_url }}" alt="{{ tag.name }}" class="tag-img">
+                            </div>
+
+                            <h2>{{ tag.name }}</h2>
+                            <span class="badge badge-pill badge-success">&nbsp;{{ tag.used_count }}&nbsp;</span>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br />
+        <br />
+
+        <div class="row text-left">
+            <div class="col-12">
+                <h3><u>Commentaires :</u></h3>
+            </div>
+
+            {% for comment in comments %}
+                <div class="col-12">
+                    {{ comment }}
+                </div>
+            {% endfor %}
+
+            <div class="col-12">
+                <textarea placeholder="Nouveau message..." name="new-comment" id="new-comment" cols="30" rows="5"></textarea>
+            </div>
+
+        </div>
+
+    </section>
+{% endblock %}
