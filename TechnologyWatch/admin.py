@@ -1,5 +1,5 @@
 from django.contrib import admin
-from CollaborativeTechnologyWatch.models import Tag, Topic, Resource, Like
+from TechnologyWatch.models import Tag, Topic, Resource, Like
 
 
 #@admin.register(Category)

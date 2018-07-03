@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=10, unique=True)
     picture_url = models.CharField(max_length=2000, default="/static/img/default_tag.png")
 
     def __str__(self):

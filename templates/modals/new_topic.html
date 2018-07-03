@@ -23,19 +23,28 @@
 
                     <label for="tags-input">Tags</label>
                     <div id="tags-input">
-                        <span class="badge badge-success">Tag1<i class="remove-tag fa fa-times fa-white"></i></span>
-                        <input type="text" maxlength="20" />
+                        <input type="text" maxlength="10" />
                     </div>
 
+                    <br />
                     Ajouter une ressource :
-                    <div class="input-group mb-3">
-                        <input name="link-name" autocomplete="off" maxlength="100" type="text" class="form-control" placeholder="Nom ressource...">
-                        <input name="link" autocomplete="off" maxlength="2000" type="text" class="form-control" placeholder="Lien ressource...">
-                        <div class="input-group-append">
-                            <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                    <div id="ressources">
+                        <div id="ressource-input" class="input-group mb-3">
+                            <input name="link-name" autocomplete="off" maxlength="100" type="text" class="form-control" placeholder="Nom ressource...">
+                            <input name="link" autocomplete="off" maxlength="2000" type="text" class="form-control" placeholder="Lien ressource...">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                            </div>
                         </div>
                     </div>
                 </form>
+
+                <div hidden id="error-alert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Erreur !</strong> <span id="error-message"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>

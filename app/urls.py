@@ -1,4 +1,4 @@
-"""CollaborativeTechnologyWatch URL Configuration
+"""TechnologyWatch URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -19,7 +19,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
 
-from CollaborativeTechnologyWatch import views
+from TechnologyWatch import views
 
 urlpatterns = [
     path('', views.root, name='root'),
@@ -38,5 +38,9 @@ urlpatterns = [
     path('suggest/tag/<str:search_value>/', views.suggest_tag, name="suggest_tag"),
 
     path('search/', views.search, name="search"),
+
+
+    path('connect/', views.connect, name="connect"),
+    path('disconnect/', views.disconnect, name="disconnect"),
     path('admin/', admin.site.urls, name="admin"),
 ] + static(settings.STATIC_URL)

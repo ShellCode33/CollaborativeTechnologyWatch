@@ -163,16 +163,18 @@ $(function() {
     let tag_input = tags_input.find("input");
 
     tag_input.keypress(function (e) {
-        if(e.which === 13) {
-            let new_tag = $("<span class=\"badge badge-success\">" + $(this).val() + "<i class=\"remove-tag fa fa-times fa-white\"></i></span>");
+        if(e.which === 13 || e.which === 32) {
+            let new_tag = $("<span class=\"badge badge-success mr-2\">" + $(this).val() + "<i class=\"remove-tag fa fa-times fa-white\"></i></span>");
 
             new_tag.children(".remove-tag").click(function () {
                new_tag.remove();
             });
 
-            tag_input.detach();
+            let typeahead = tags_input.find(".twitter-typeahead").detach();
             tags_input.append(new_tag);
-            tags_input.append(tag_input);
+            tags_input.append(typeahead);
+            tag_input.val("");
+            tag_input.focus();
         }
     });
 
@@ -192,4 +194,42 @@ $(function() {
         }
     });
 
+    $("#ressource-input button").click(function () {
+        add_ressource();
+    });
+
+    $("#tags-input").click(function () {
+        $(this).find("input").focus();
+    });
 });
+
+function add_ressource() {
+    let current_input = $("#ressource-input");
+    let link_name_value = current_input.find("input[name='link-name']").val();
+    let link = current_input.find("input[name='link']");
+
+    if(!link.val().startsWith("http://") && !link.val().startsWith("https://")) {
+        link.val("https://");
+        link.focus();
+        $("#error-message").html("Le lien doit commencer par <b>http(s)://</b>");
+        $("#error-alert").removeAttr('hidden');
+        return;
+    }
+
+    let current_button = current_input.find("button");
+    let new_ressource = current_input.clone();
+    new_ressource.children("input").val("");
+    new_ressource.find("button").click(add_ressource);
+    current_input.attr("id", ""); //Prevent duplicate id
+    current_button.off("click");
+
+    current_button.removeClass("btn-success").addClass("btn-danger");
+    current_button.find("i").removeClass("fa-plus").addClass("fa-times");
+
+    current_button.click(function () {
+        current_input.remove();
+    });
+
+    $("#ressources").append(new_ressource);
+    new_ressource.children("input[name='link-name']").focus();
+}

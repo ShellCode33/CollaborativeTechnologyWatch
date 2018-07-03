@@ -2,7 +2,7 @@ from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
-from CollaborativeTechnologyWatch.models import Topic, Tag, Resource, Like
+from TechnologyWatch.models import Topic, Tag, Resource, Like
 import requests
 
 
@@ -74,6 +74,8 @@ def new_topic(request):
         return HttpResponseBadRequest()
 
     form = request.POST
+    print(form)
+    return HttpResponse("OK")
 
     existing_topic = Topic.objects.filter(name=form["title"])
 
@@ -88,7 +90,9 @@ def new_topic(request):
 
     topic.save()
 
-    return HttpResponse("OK")
+    new_tags = []
+
+    return render(request, "display/topic_created_new_tags_view.html", new_tags)
 
 
 def suggest_topic(request, search_value):
@@ -190,3 +194,11 @@ def add_resource(request, topic_id):
     new_res.save()
 
     return JsonResponse({'message': "La ressource a été ajoutée avec succès."}, status=200)
+
+
+def connect(request):
+    return None
+
+
+def disconnect(request):
+    return None
