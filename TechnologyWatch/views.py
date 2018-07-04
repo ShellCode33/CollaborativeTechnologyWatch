@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
-from TechnologyWatch.models import Topic, Tag, Ressource, Like
+from TechnologyWatch.models import Topic, Tag, Resource, Like
 import requests
 
 
@@ -109,7 +109,7 @@ def new_topic(request):
 
     for i in range(len(form.getlist("link"))):
         link = form.getlist("link")[i]
-        ressource = Ressource(name=form.getlist("link-name")[i], link=link)
+        ressource = Resource(name=form.getlist("link-name")[i], link=link)
         ressource.topic = topic
 
         try:
@@ -219,7 +219,7 @@ def add_resource(request, topic_id):
     if len(parsed_link.netloc) == 0 or len(parsed_link.netloc.split(".")) == 1:
         return JsonResponse({'message': "URL invalide."}, status=400)
 
-    new_res = Ressource()
+    new_res = Resource()
     new_res.name = form["link-name"]
     new_res.link = form["link"]
     new_res.topic = topic

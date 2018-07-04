@@ -28,7 +28,7 @@ class Topic(models.Model):
         return self.name
 
 
-class Ressource(models.Model):
+class Resource(models.Model):
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=2000, validators=[URLValidator()])
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
