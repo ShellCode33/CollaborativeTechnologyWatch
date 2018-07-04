@@ -1,5 +1,5 @@
 from django.contrib import admin
-from TechnologyWatch.models import Tag, Topic, Resource, Like
+from TechnologyWatch.models import Tag, Topic, Ressource, Like
 
 
 #@admin.register(Category)
@@ -9,5 +9,5 @@ from TechnologyWatch.models import Tag, Topic, Resource, Like
 
 admin.site.register(Tag)
 admin.site.register(Topic)
-admin.site.register(Resource)
+admin.site.register(Ressource)
 admin.site.register(Like)

@@ -1,13 +1,13 @@
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
-from TechnologyWatch.models import Topic, Tag, Resource, Like
+from TechnologyWatch.models import Topic, Tag, Ressource, Like
 import requests
 
 
 def root(request):
-
     # TODO : hottest in the last 24h ?
 
     context = {
@@ -75,24 +75,56 @@ def new_topic(request):
 
     form = request.POST
     print(form)
-    return HttpResponse("OK")
 
-    existing_topic = Topic.objects.filter(name=form["title"])
+    topic = Topic.objects.filter(name=form["title"])
 
-    if len(existing_topic) == 1:
+    if topic.exists():
         return JsonResponse({'error': "Ce sujet existe déjà."}, status=405)  # Not Allowed
 
-    topic = Topic(name=form["title"],
-                  description=form["description"],
-                  # tags=[],
-                  # ressources=[]
-                  )
+    tags = []
+    new_tags = []
+    max_tag_length = Tag._meta.get_field('name').max_length
+
+    for tag_name in form.getlist("tag"):
+
+        tag_name = tag_name.strip()
+
+        if len(tag_name) > max_tag_length:
+            return JsonResponse({'error': "Vil coquin, essaye pas d'envoyer des requêtes malformées. Un tag ne peut "
+                                          "pas faire plus de {} caractères.".format(max_tag_length)}, status=405)
+
+        if " " in tag_name:
+            return JsonResponse({'error': "Vil coquin, essaye pas d'envoyer des requêtes malformées. Un tag ne peut "
+                                          "pas contenir d'espaces."}, status=405)
+
+        tag = Tag.objects.filter(name=tag_name)
+
+        if not tag.exists():
+            tag = Tag(name=tag_name)
+            new_tags.append(tag)
+
+        tags.append(tag)
+
+    topic = Topic.objects.create(name=form["title"], description=form["description"])
+
+    for i in range(len(form.getlist("link"))):
+        link = form.getlist("link")[i]
+        ressource = Ressource(name=form.getlist("link-name")[i], link=link)
+        ressource.topic = topic
+
+        try:
+            ressource.full_clean()
+            ressource.save()
+        except ValidationError:
+            topic.delete()
+            return JsonResponse({'error': "URL Invalide : {}".format(link)}, status=405)
+
+    for tag in new_tags:
+        tag.save()
+        topic.tags.add(tag)
 
     topic.save()
-
-    new_tags = []
-
-    return render(request, "display/topic_created_new_tags_view.html", new_tags)
+    return render(request, "display/topic_created_new_tags_view.html", {"new_tags": new_tags})
 
 
 def suggest_topic(request, search_value):
@@ -187,7 +219,7 @@ def add_resource(request, topic_id):
     if len(parsed_link.netloc) == 0 or len(parsed_link.netloc.split(".")) == 1:
         return JsonResponse({'message': "URL invalide."}, status=400)
 
-    new_res = Resource()
+    new_res = Ressource()
     new_res.name = form["link-name"]
     new_res.link = form["link"]
     new_res.topic = topic

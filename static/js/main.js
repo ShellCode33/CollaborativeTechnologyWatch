@@ -1,3 +1,21 @@
+let topics = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: '/suggest/topic/%QUERY',
+        wildcard: '%QUERY'
+    }
+});
+
+let tags = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: '/suggest/tag/*',
+    remote: {
+        url: '/suggest/tag/%QUERY',
+        wildcard: '%QUERY'
+    }
+});
 
 function scrollTo(id) {
     console.log("Scroll to #" + id);
@@ -22,25 +40,6 @@ $(function() {
     });
 
     $(window).trigger('scroll');
-
-    let topics = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        remote: {
-            url: '/suggest/topic/%QUERY',
-            wildcard: '%QUERY'
-        }
-    });
-
-    let tags = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: '/suggest/tag/*',
-        remote: {
-            url: '/suggest/tag/%QUERY',
-            wildcard: '%QUERY'
-        }
-    });
 
     $('#search-form .typeahead').typeahead({
         highlight: true,
@@ -75,15 +74,24 @@ $(function() {
     $("#search-input").css("width", search_input_width + "px");
 
     $("#create-new-topic-button").click(function () {
+        let post_parameters = $('#new-topic-form').serialize();
+
+        $(".tag-input").each(function (i, tag) {
+            post_parameters += "&tag=" + encodeURIComponent(tag.innerText);
+        });
+
         $.ajax({
             url: '/topic/new/',
             type: 'post',
-            dataType: 'json',
-            data: $('#new-topic-form').serialize()
-        }).done(function () {
+            data: post_parameters
+        }).done(function (new_tags) {
             $("#create-topic-modal").modal('toggle');
-        }).fail(function (error) {
-            alert(error["responseJSON"].message);
+            $("#topic-created-modal").find(".modal-body").remove();
+            $("#topic-created-modal").find(".modal-header").after($(new_tags));
+            $("#topic-created-modal").modal('toggle');
+        }).fail(function (data) {
+            $("#error-message").text(data["responseJSON"].error);
+            $("#error-alert").removeAttr('hidden');
         });
     });
 
@@ -164,17 +172,15 @@ $(function() {
 
     tag_input.keypress(function (e) {
         if(e.which === 13 || e.which === 32) {
-            let new_tag = $("<span class=\"badge badge-success mr-2\">" + $(this).val() + "<i class=\"remove-tag fa fa-times fa-white\"></i></span>");
+            let new_tag = $("<span class=\"tag-input badge badge-success mr-2\">" + $(this).val() + "<i class=\"remove-tag fa fa-times fa-white\"></i></span>");
 
             new_tag.children(".remove-tag").click(function () {
-               new_tag.remove();
+                new_tag.remove();
             });
 
-            let typeahead = tags_input.find(".twitter-typeahead").detach();
-            tags_input.append(new_tag);
-            tags_input.append(typeahead);
+            tags_input.find(".twitter-typeahead").before(new_tag);
             tag_input.val("");
-            tag_input.focus();
+            e.preventDefault();
         }
     });
 

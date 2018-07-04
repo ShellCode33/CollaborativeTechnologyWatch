@@ -4,7 +4,7 @@
 
         {% for tag in new_tags %}
             <label for="filename-tag-{{ tag.id }}"><b>{{ tag.name }}</b></label><br />
-            <input id="filename-tag-{{ tag.id }}" type="file" name="filename" accept="image/jpeg, image/png">
+            <input id="filename-tag-{{ tag.id }}" type="file" name="filename" accept="image/jpeg, image/png"><br />
         {% endfor %}
     </div>
 {% endif %}
