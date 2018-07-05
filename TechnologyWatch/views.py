@@ -121,6 +121,8 @@ def new_topic(request):
 
     for tag in new_tags:
         tag.save()
+
+    for tag in tags:
         topic.tags.add(tag)
 
     topic.save()
