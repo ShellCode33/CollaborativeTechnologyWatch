@@ -1,10 +1,12 @@
+import requests
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Count
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
 from TechnologyWatch.models import Topic, Tag, Resource, Like
-import requests
 
 
 def root(request):
@@ -13,7 +15,8 @@ def root(request):
     context = {
         "latest": Topic.objects.annotate(likes_count=Count("like")).order_by("-creation_date")[:20],
         "hottest": Topic.objects.annotate(likes_count=Count("like")).order_by("-likes_count")[:20],
-        "tags": Tag.objects.annotate(used_count=Count("topic")).order_by("-used_count")
+        "tags": Tag.objects.annotate(used_count=Count("topic")).order_by("-used_count"),
+        "user": request.user
     }
 
     return render(request, "index.html", context)
@@ -21,11 +24,14 @@ def root(request):
 
 def display_topic(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
+    liked_by_user = Like.objects.filter(topic=topic, liked_by=request.user).exists()
     tags = Tag.objects.annotate(used_count=Count("topic")).filter(topic=topic).order_by("-used_count")
     return render(request, "display/topic.html", {"topic": topic,
                                                   "likes_count": topic.like_set.count(),
                                                   "tags": tags,
-                                                  "resources": topic.resource_set.all()})
+                                                  "resources": topic.resource_set.all(),
+                                                  "user": request.user,
+                                                  "liked_by_user": liked_by_user})
 
 
 def display_tag(request, tag_id):
@@ -33,34 +39,27 @@ def display_tag(request, tag_id):
     related_topics = Topic.objects.filter(tags__name__contains=tag.name)
     related_topics = related_topics.annotate(likes_count=Count("like"))
     related_topics = related_topics.order_by("-likes_count")
-    return render(request, "display/tag.html", {"tag": tag, "related_topics": related_topics})
+    return render(request, "display/tag.html", {"tag": tag, "related_topics": related_topics, "user": request.user})
 
 
+@login_required
 def like_topic(request, topic_id):
-    # TODO : check that the user doesn't have voted already
-
     topic = get_object_or_404(Topic, pk=topic_id)
-    user = None
-    like = Like.objects.filter(topic=topic, user=user).first()
+    like = Like.objects.filter(topic=topic, liked_by=request.user)
 
-    if like is None:
-        like = Like()
-        like.topic = topic
-        like.save()
+    if not like.exists():
+        Like.objects.create(topic=topic, liked_by=request.user)
+        return HttpResponse("OK")
     else:
         return JsonResponse({"error": "Vil coquin, n'essaye pas de gruger les likes."}, status=405)
 
-    return HttpResponse("OK")
 
-
+@login_required
 def remove_like_topic(request, topic_id):
-    # TODO : check that the user has voted already
-
     topic = get_object_or_404(Topic, pk=topic_id)
-    user = None
-    like = Like.objects.filter(topic=topic, user=user).first()
+    like = Like.objects.filter(topic=topic, liked_by=request.user)
 
-    if like is not None:
+    if like.exists():
         like.delete()
 
     else:
@@ -69,6 +68,7 @@ def remove_like_topic(request, topic_id):
     return HttpResponse("OK")
 
 
+@login_required
 def new_topic(request):
     if request.method != "POST":
         return HttpResponseBadRequest()
@@ -81,19 +81,31 @@ def new_topic(request):
     if topic.exists():
         return JsonResponse({'error': "Ce sujet existe déjà."}, status=405)  # Not Allowed
 
-    tags = []
+    topic = Topic.objects.create(name=form["title"], description=form["description"], created_by=request.user)
+    print(request.user)
+
     new_tags = []
+    tags = []
     max_tag_length = Tag._meta.get_field('name').max_length
 
     for tag_name in form.getlist("tag"):
 
         tag_name = tag_name.strip()
 
+        if len(tag_name) == 0:
+            continue
+
+        if tag_name in tags:
+            print("Tag {} already processed, skipping...".format(tag_name))
+            continue
+
         if len(tag_name) > max_tag_length:
+            topic.delete()
             return JsonResponse({'error': "Vil coquin, essaye pas d'envoyer des requêtes malformées. Un tag ne peut "
                                           "pas faire plus de {} caractères.".format(max_tag_length)}, status=405)
 
         if " " in tag_name:
+            topic.delete()
             return JsonResponse({'error': "Vil coquin, essaye pas d'envoyer des requêtes malformées. Un tag ne peut "
                                           "pas contenir d'espaces."}, status=405)
 
@@ -102,20 +114,24 @@ def new_topic(request):
         if not tag.exists():
             tag = Tag(name=tag_name)
             new_tags.append(tag)
+        else:
+            tag = tag.first()
 
         tags.append(tag)
 
-    topic = Topic.objects.create(name=form["title"], description=form["description"])
-
     for i in range(len(form.getlist("link"))):
         link = form.getlist("link")[i]
+
+        if len(link) == 0:
+            continue
+
         ressource = Resource(name=form.getlist("link-name")[i], link=link)
         ressource.topic = topic
 
         try:
             ressource.full_clean()
             ressource.save()
-        except ValidationError:
+        except ValidationError as e:
             topic.delete()
             return JsonResponse({'error': "URL Invalide : {}".format(link)}, status=405)
 
@@ -125,7 +141,6 @@ def new_topic(request):
     for tag in tags:
         topic.tags.add(tag)
 
-    topic.save()
     return render(request, "display/topic_created_new_tags_view.html", {"new_tags": new_tags})
 
 
@@ -162,7 +177,6 @@ def search(request):
 
     if len(search_value) < 3:
         error = "Merci de faire une recherche d'au minimum 3 caractères."
-        error_code = 400
 
     elif search_value.startswith("topic:"):
         search_value = search_value[6:]
@@ -173,7 +187,6 @@ def search(request):
 
         else:
             error = "Impossible de trouver ce sujet."
-            error_code = 404
 
     elif search_value.startswith("tag:"):
         search_value = search_value[4:]
@@ -184,7 +197,6 @@ def search(request):
 
         else:
             error = "Impossible de trouver ce tag."
-            error_code = 404
 
     else:
         topics_found = Topic.objects.filter(name__icontains=search_value)
@@ -203,6 +215,7 @@ def search(request):
     return render(request, "display/search.html", context)
 
 
+@login_required()
 def add_resource(request, topic_id):
     if request.method != "POST":
         return HttpResponseBadRequest()
@@ -231,8 +244,39 @@ def add_resource(request, topic_id):
 
 
 def connect(request):
-    return None
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+
+    if request.user.is_authenticated:
+        return JsonResponse({"error": "Vous êtes déjà connecté."})
+
+    username = request.POST['username']
+    password = request.POST['password']
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        return HttpResponse("OK")
+
+    else:
+        return JsonResponse({"error": "Identifiants incorrects."}, status=401)
 
 
 def disconnect(request):
-    return None
+    if request.user.is_authenticated:
+        logout(request)
+
+    return redirect(root)
+
+
+@login_required
+def profile(request):
+
+    context = {
+        "user": request.user,
+        "liked_topics": Topic.objects.annotate(likes_count=Count("like")).filter(created_by=request.user).order_by("-creation_date"),
+        "comments_made": None
+    }
+
+    return render(request, "display/profile.html", context)

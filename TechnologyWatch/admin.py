@@ -1,6 +1,5 @@
 from django.contrib import admin
-from TechnologyWatch.models import Tag, Topic, Resource, Like
-
+from TechnologyWatch.models import Tag, Topic, Resource, Like, User
 
 #@admin.register(Category)
 #class CategoryAdmin(admin.ModelAdmin):

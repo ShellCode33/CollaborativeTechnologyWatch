@@ -1,36 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container" id="tag-container">
-        <div class="row tag-header">
-            <div class="col-12 text-center">
-                <img class="tag-img" style="max-height: 200px;" src="{{ tag.picture_url }}" alt="{{ tag.name }}">
-                <h2>{{ tag.name }}</h2>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Bienvenue sur votre profil {{ user.username }} !</h1>
             </div>
         </div>
 
         <br /><br />
 
-        <div class="row text-left">
-            <div class="col-12">
-                <h2>Sujets en relation :</h2>
+        <div class="row">
+            <div class="col-12 text-left">
+                <h2>Topics que vous avez aimé :</h2>
 
                 <div class="list-group">
-                    {% for topic in related_topics %}
+                    {% for topic in liked_topics %}
                         <a href="/topic/{{ topic.id }}" class="list-group-item list-group-item-action flex-column align-items-start">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ topic.name }}</h5>
-                                <span class="badge badge-success badge-pill">{{ topic.likes_count }} ont aimé.</span>
+                                <span class="badge badge-success badge-pill">{{ topic.likes_count }} j'aime.</span>
                             </div>
                             <p class="mt-2 mb-2">{{ topic.description }}</p>
-                            <small>3 days ago, by cfy</small>
+                            <small>Il y a {{ topic.get_time_ago }}, par {{ topic.created_by.username }}.</small>
                         </a>
                     {% endfor %}
                 </div>
             </div>
         </div>
-
-        <br />
-        <br />
     </div>
 {% endblock %}

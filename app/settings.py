@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import ldap
+from django_auth_ldap.config import LDAPSearch
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +27,11 @@ SECRET_KEY = 'g0+w*af62ifc@i0(dhc0q1eb*ccorr3#1r85=g4gj5efascleh'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "192.168.203.159"
+]
 
 
 # Application definition
@@ -39,6 +45,18 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'TechnologyWatch.apps.TechnologyWatchConfig',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+#AUTH_USER_MODEL = 'TechnologyWatch.User'
+
+AUTH_LDAP_SERVER_URI = "ldaps://ldap.amossys.fr"
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=users,dc=amossys.fr,dc=amossys,dc=fr", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -92,6 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

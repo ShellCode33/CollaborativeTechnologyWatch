@@ -90,8 +90,8 @@ $(function() {
             $("#topic-created-modal").find(".modal-header").after($(new_tags));
             $("#topic-created-modal").modal('toggle');
         }).fail(function (data) {
-            $("#error-message").text(data["responseJSON"].error);
-            $("#error-alert").removeAttr('hidden');
+            $("#error-new-topic .error-message").text(data["responseJSON"].error);
+            $("#error-new-topic").removeAttr('hidden');
         });
     });
 
@@ -149,14 +149,18 @@ $(function() {
             type: 'post',
             data: $('input[name="csrfmiddlewaretoken"]').serialize()
         }).done(function (data) {
+            let likes_count = $("#likes-count");
+
             if(not_liked_yet) {
-                like_button.text("Unlike");
+                likes_count.text(parseInt(likes_count.text()) + 1);
+                like_button.text("Je n'aime plus");
                 like_button.removeClass("btn-success");
                 like_button.addClass("btn-danger");
             }
 
             else {
-                like_button.text("Like");
+                likes_count.text(parseInt(likes_count.text()) - 1);
+                like_button.text("J'aime");
                 like_button.removeClass("btn-danger");
                 like_button.addClass("btn-success");
             }
@@ -207,6 +211,19 @@ $(function() {
     $("#tags-input").click(function () {
         $(this).find("input").focus();
     });
+
+    $("#connect-button").click(function () {
+        $.ajax({
+            url: '/connect/',
+            type: 'post',
+            data: $('#login-modal input').serialize()
+        }).done(function (data) {
+            location.reload();
+        }).fail(function (data) {
+            $("#error-login .error-message").text(data["responseJSON"].error);
+            $("#error-login").removeAttr('hidden');
+        });
+    });
 });
 
 function add_ressource() {
@@ -217,8 +234,8 @@ function add_ressource() {
     if(!link.val().startsWith("http://") && !link.val().startsWith("https://")) {
         link.val("https://");
         link.focus();
-        $("#error-message").html("Le lien doit commencer par <b>http(s)://</b>");
-        $("#error-alert").removeAttr('hidden');
+        $("#error-new-topic .error-message").html("Le lien doit commencer par <b>http(s)://</b>");
+        $("#error-new-topic").removeAttr('hidden');
         return;
     }
 

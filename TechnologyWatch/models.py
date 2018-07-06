@@ -1,5 +1,10 @@
-from django.core.validators import URLValidator
+from datetime import timedelta
+
+from django.core.validators import URLValidator, EmailValidator
 from django.db import models
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -13,19 +18,30 @@ class Tag(models.Model):
         pass
 
 
-class User(models.Model):
-    pass
-
-
 class Topic(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=2000)
     tags = models.ManyToManyField(Tag)
-    # created_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default="Inconnu")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_date = models.DateTimeField("creation date", auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    def get_time_ago(self):
+        time_diff = timezone.now() - self.creation_date
+        time_string = ""
+
+        if time_diff < timedelta(hours=1):
+            time_string = "{} minutes".format(int(time_diff.seconds / 60))
+
+        elif time_diff < timedelta(days=1):
+            time_string = "{} heures".format(int(time_diff.seconds / 3600))
+
+        elif time_diff > timedelta(days=365):
+            time_string = "{} jours".format(time_diff.days)
+
+        return time_string
 
 
 class Resource(models.Model):
@@ -39,12 +55,12 @@ class Resource(models.Model):
 
 class Comment(models.Model):
     content = models.CharField(max_length=1000)
-    # posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
     post_date = models.DateTimeField("comment date", auto_now_add=True)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
 
 
 class Like(models.Model):
-    # liked_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    liked_by = models.ForeignKey(User, on_delete=models.CASCADE)
     like_date = models.DateTimeField("like date", auto_now_add=True)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)

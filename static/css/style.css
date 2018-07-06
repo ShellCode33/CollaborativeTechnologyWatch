@@ -22,6 +22,7 @@ p {
 
 a {
     outline: none;
+    cursor: pointer;
 }
 
 @media screen and (max-width: 992px) {
@@ -247,4 +248,13 @@ a.list-group-item:link, a.list-group-item:visited, a.list-group-item:active, a.l
     margin-left: 10px;
     margin-right: 5px;
     cursor: pointer;
+}
+
+#avatar {
+    height: 24px;
+    border-radius: 50%;
+}
+
+#profileDropdown {
+    min-width: 120px;
 }

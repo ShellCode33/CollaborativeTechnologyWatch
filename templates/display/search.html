@@ -1,17 +1,5 @@
 {% extends "base.html" %}
 
-{% block navbar_left_side %}
-    <li class="nav-item" id="nav-item-home">
-        <a class="nav-link" href="/#home">Accueil</a>
-    </li>
-    <li class="nav-item" id="nav-item-news">
-        <a class="nav-link" href="/#news">Actualités</a>
-    </li>
-    <li class="nav-item" id="nav-item-tags">
-        <a class="nav-link" href="/#tags">Tags</a>
-    </li>
-{% endblock %}
-
 {% block content %}
     {% if search_error %}
         <div class="container" id="tag-container">

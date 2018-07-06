@@ -42,5 +42,7 @@ urlpatterns = [
 
     path('connect/', views.connect, name="connect"),
     path('disconnect/', views.disconnect, name="disconnect"),
+    path('profile/', views.profile, name="profile"),
+
     path('admin/', admin.site.urls, name="admin"),
 ] + static(settings.STATIC_URL)
