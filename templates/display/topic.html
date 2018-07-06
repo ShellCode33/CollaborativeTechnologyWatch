@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 
-{% if user.is_authenticated %}
+
 {% block navbar_center %}
     {% csrf_token %}
     <li class="nav-item mr-4"><div style="padding: .5rem .1rem;"><span id="likes-count">{{ likes_count }}</span> personnes aiment ce sujet.</div></li>
 
-    {% if liked_by_user %}
-        <li><button class="nav-item btn btn-danger" id="like-button">Je n'aime plus</button></li>
-    {% else %}
-        <li><button class="nav-item btn btn-success" id="like-button">J'aime</button></li>
+    {% if user.is_authenticated %}
+        {% if liked_by_user %}
+            <li><button class="nav-item btn btn-danger" id="like-button">Je n'aime plus</button></li>
+        {% else %}
+            <li><button class="nav-item btn btn-success" id="like-button">J'aime</button></li>
+        {% endif %}
     {% endif %}
 {% endblock %}
-{% endif %}
+
 
 {% block content %}
     <div id="topic_id">{{ topic.id }}</div>
@@ -89,7 +91,7 @@
             {% endfor %}
 
             <div class="col-12">
-                <textarea placeholder="Nouveau message..." name="new-comment" id="new-comment" cols="30" rows="5"></textarea>
+                <textarea disabled style="cursor: not-allowed;" placeholder="Nouveau message..." name="new-comment" id="new-comment" cols="30" rows="5"></textarea>
             </div>
 
         </div>

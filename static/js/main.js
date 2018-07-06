@@ -110,11 +110,11 @@ $(function() {
     });
 
     //Keep only one item opened in the news
-    $(".latest-group-item").focusout(function () {
+    $(".latest-group-item").click(function () {
         $("[id^=latest-topic-description-]").collapse("hide");
     });
 
-    $(".hottest-group-item").focusout(function () {
+    $(".hottest-group-item").click(function () {
         $("[id^=hottest-topic-description-]").collapse("hide");
     });
 
@@ -228,7 +228,6 @@ $(function() {
 
 function add_ressource() {
     let current_input = $("#ressource-input");
-    let link_name_value = current_input.find("input[name='link-name']").val();
     let link = current_input.find("input[name='link']");
 
     if(!link.val().startsWith("http://") && !link.val().startsWith("https://")) {

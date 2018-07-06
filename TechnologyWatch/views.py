@@ -24,7 +24,11 @@ def root(request):
 
 def display_topic(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
-    liked_by_user = Like.objects.filter(topic=topic, liked_by=request.user).exists()
+    liked_by_user = None
+
+    if request.user.is_authenticated:
+        liked_by_user = Like.objects.filter(topic=topic, liked_by=request.user).exists()
+
     tags = Tag.objects.annotate(used_count=Count("topic")).filter(topic=topic).order_by("-used_count")
     return render(request, "display/topic.html", {"topic": topic,
                                                   "likes_count": topic.like_set.count(),
@@ -145,7 +149,7 @@ def new_topic(request):
 
 
 def suggest_topic(request, search_value):
-    if len(search_value) < 3:
+    if len(search_value) < 3 and search_value != "*":
         return JsonResponse({"error": "Merci de faire une recherche d'au minimum 3 caractères."}, status=400)
 
     topics = Topic.objects.filter(name__icontains=search_value)
@@ -153,7 +157,7 @@ def suggest_topic(request, search_value):
 
 
 def suggest_tag(request, search_value):
-    if len(search_value) < 3:
+    if len(search_value) < 3 and search_value != "*":
         return JsonResponse({"error": "Merci de faire une recherche d'au minimum 3 caractères."}, status=400)
 
     if search_value == "*":  # Needed to prefetch all the tags
