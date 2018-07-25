@@ -3,7 +3,7 @@
 
 {% block navbar_center %}
     {% csrf_token %}
-    <li class="nav-item mr-4"><div style="padding: .5rem .1rem;"><span id="likes-count">{{ likes_count }}</span> personnes aiment ce sujet.</div></li>
+    <li class="nav-item mr-4"><div style="padding: .5rem .1rem;"><span id="likes-count">{{ topic.likes_count }}</span> personnes aiment ce sujet.</div></li>
 
     {% if user.is_authenticated %}
         {% if liked_by_user %}

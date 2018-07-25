@@ -43,6 +43,9 @@ class Topic(models.Model):
 
         return time_string
 
+    def likes_count(self):
+        return Like.objects.filter(topic=self).count()
+
 
 class Resource(models.Model):
     name = models.CharField(max_length=100)

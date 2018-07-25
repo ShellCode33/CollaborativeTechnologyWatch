@@ -13,7 +13,7 @@ def root(request):
     # TODO : hottest in the last 24h ?
 
     context = {
-        "latest": Topic.objects.annotate(likes_count=Count("like")).order_by("-creation_date")[:20],
+        "latest": Topic.objects.order_by("-creation_date")[:20],
         "hottest": Topic.objects.annotate(likes_count=Count("like")).order_by("-likes_count")[:20],
         "tags": Tag.objects.annotate(used_count=Count("topic")).order_by("-used_count"),
         "user": request.user
@@ -31,7 +31,6 @@ def display_topic(request, topic_id):
 
     tags = Tag.objects.annotate(used_count=Count("topic")).filter(topic=topic).order_by("-used_count")
     return render(request, "display/topic.html", {"topic": topic,
-                                                  "likes_count": topic.like_set.count(),
                                                   "tags": tags,
                                                   "resources": topic.resource_set.all(),
                                                   "user": request.user,
@@ -40,9 +39,8 @@ def display_topic(request, topic_id):
 
 def display_tag(request, tag_id):
     tag = get_object_or_404(Tag, pk=tag_id)
-    related_topics = Topic.objects.filter(tags__name__contains=tag.name)
-    related_topics = related_topics.annotate(likes_count=Count("like"))
-    related_topics = related_topics.order_by("-likes_count")
+    related_topics = Topic.objects.filter(tags__name__contains=tag.name)\
+                                  .annotate(likes_count=Count("like")).order_by("-likes_count")
     return render(request, "display/tag.html", {"tag": tag, "related_topics": related_topics, "user": request.user})
 
 
@@ -175,7 +173,6 @@ def search(request):
     search_value = request.POST["query"]
 
     error = None
-    error_code = None
     topics_found = []
     tags_found = []
 
@@ -276,10 +273,15 @@ def disconnect(request):
 
 @login_required
 def profile(request):
-
     context = {
         "user": request.user,
-        "liked_topics": Topic.objects.annotate(likes_count=Count("like")).filter(created_by=request.user).order_by("-creation_date"),
+
+        "liked_topics": Topic.objects.filter(created_by=request.user)
+                                     .order_by("-creation_date"),
+
+        "created_topics": Topic.objects.filter(created_by=request.user)
+                                       .order_by("-creation_date"),
+
         "comments_made": None
     }
 
