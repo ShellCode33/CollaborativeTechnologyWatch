@@ -50,6 +50,7 @@ $(function() {
             return "topic:" + item.name;
         },
         source: topics,
+        limit: Infinity, // Typeahead 0.11.1 is broken !! Infinity needed
         templates: {
             header: '<h3 class="suggestions-header">Sujets</h3>',
             suggestion: function (response) {
@@ -62,6 +63,7 @@ $(function() {
             return "tag:" + item.name;
         },
         source: tags,
+        limit: Infinity, // Typeahead 0.11.1 is broken !! Infinity needed
         templates: {
             header: '<h3 class="suggestions-header">Tags</h3>',
             suggestion: function (response) {
@@ -193,10 +195,8 @@ $(function() {
         minLength: 2
     }, {
         name: 'searchTags',
-        display: function (item) {
-            return item.name;
-        },
         source: tags,
+        limit: Infinity, // Typeahead 0.11.1 is broken !! Infinity needed
         templates: {
             suggestion: function (response) {
                 return $("<div>").text(response.name);

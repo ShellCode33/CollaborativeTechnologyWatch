@@ -150,7 +150,7 @@ def suggest_topic(request, search_value):
     if len(search_value) < 3 and search_value != "*":
         return JsonResponse({"error": "Merci de faire une recherche d'au minimum 3 caractères."}, status=400)
 
-    topics = Topic.objects.filter(name__icontains=search_value)
+    topics = Topic.objects.filter(name__icontains=search_value)[10:]
     return JsonResponse([{"id": topic.id, "name": topic.name} for topic in topics], status=200, safe=False)
 
 
@@ -161,7 +161,8 @@ def suggest_tag(request, search_value):
     if search_value == "*":  # Needed to prefetch all the tags
         tags = Tag.objects.all()
     else:
-        tags = Tag.objects.filter(name__icontains=search_value)
+        tags = Tag.objects.filter(name__icontains=search_value)\
+                          .annotate(used_count=Count("topic")).order_by("-used_count")[10:]
 
     return JsonResponse([{"id": tag.id, "name": tag.name} for tag in tags], status=200, safe=False)
 
