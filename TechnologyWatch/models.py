@@ -30,18 +30,18 @@ class Topic(models.Model):
 
     def get_time_ago(self):
         time_diff = timezone.now() - self.creation_date
-        time_string = ""
 
         if time_diff < timedelta(hours=1):
-            time_string = "{} minutes".format(int(time_diff.seconds / 60))
+            return "{} minutes".format(int(time_diff.seconds / 60))
 
         elif time_diff < timedelta(days=1):
-            time_string = "{} heures".format(int(time_diff.seconds / 3600))
+            return "{} heures".format(int(time_diff.seconds / 3600))
 
-        elif time_diff > timedelta(days=365):
-            time_string = "{} jours".format(time_diff.days)
+        elif time_diff < timedelta(days=365):
+            return "{} jours".format(time_diff.days)
 
-        return time_string
+        else:
+            return "{} ans".format(time_diff.days // 365)
 
     def likes_count(self):
         return Like.objects.filter(topic=self).count()
