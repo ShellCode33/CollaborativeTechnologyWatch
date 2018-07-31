@@ -198,7 +198,7 @@ a.list-group-item:link, a.list-group-item:visited, a.list-group-item:active, a.l
 }
 
 .tt-menu {
-    width: 50%;
+    width: 100%;
     background-color: white;
     color: black;
 }
@@ -224,6 +224,15 @@ a.list-group-item:link, a.list-group-item:visited, a.list-group-item:active, a.l
 #new-comment {
     width: 100%;
     margin-bottom: 30px;
+    z-index: 0;
+}
+
+#send-comment {
+    position: absolute;
+    bottom: 30px;
+    right: 15px;
+    border-radius: 0;
+    z-index: 1;
 }
 
 #nav-center {
@@ -257,4 +266,10 @@ a.list-group-item:link, a.list-group-item:visited, a.list-group-item:active, a.l
 
 #profileDropdown {
     min-width: 120px;
+}
+
+.tag-autocomplete {
+    float: right;
+    line-height: 1;
+    padding: 5px;
 }

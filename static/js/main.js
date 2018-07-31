@@ -67,7 +67,9 @@ $(function() {
         templates: {
             header: '<h3 class="suggestions-header">Tags</h3>',
             suggestion: function (response) {
-                return $("<div>").text(response.name);
+                let item = $("<div>").text(response.name);
+                item.append($("<span class=\"badge badge-success tag-autocomplete\">" + response.used_count + "</span>"));
+                return item;
             }
         }
     });
@@ -195,11 +197,16 @@ $(function() {
         minLength: 2
     }, {
         name: 'searchTags',
+        display: function (item) {
+            return item.name;
+        },
         source: tags,
         limit: Infinity, // Typeahead 0.11.1 is broken !! Infinity needed
         templates: {
             suggestion: function (response) {
-                return $("<div>").text(response.name);
+                let item = $("<div>").text(response.name);
+                item.append($("<span class=\"badge badge-success tag-autocomplete\">" + response.used_count + "</span>"));
+                return item;
             }
         }
     });
@@ -223,6 +230,25 @@ $(function() {
             $("#error-login .error-message").text(data["responseJSON"].error);
             $("#error-login").removeAttr('hidden');
         });
+    });
+
+    $("#comment-form").submit(function (e) {
+        $.ajax({
+            url: '/topic/' + $("#topic_id").text() + "/comment/",
+            type: 'post',
+            data: $("#comment-form").serialize()
+        }).done(function (data) {
+            $("#message-modal .modal-title").text("Information");
+            $("#message-modal .modal-body").html(data.message);
+            $("#message-modal").modal('toggle');
+        }).fail(function (data) {
+            $("#message-modal .modal-title").text("Erreur");
+            $("#message-modal .modal-body").html(data["responseJSON"].error);
+            $("#message-modal").modal('toggle');
+        });
+
+        e.preventDefault();
+        return false;
     });
 });
 

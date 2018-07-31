@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
-from TechnologyWatch.models import Topic, Tag, Resource, Like
+from TechnologyWatch.models import Topic, Tag, Resource, Like, Comment
 
 
 def root(request):
@@ -34,7 +34,8 @@ def display_topic(request, topic_id):
                                                   "tags": tags,
                                                   "resources": topic.resource_set.all(),
                                                   "user": request.user,
-                                                  "liked_by_user": liked_by_user})
+                                                  "liked_by_user": liked_by_user,
+                                                  "comments": topic.comment_set.all()})
 
 
 def display_tag(request, tag_id):
@@ -150,7 +151,7 @@ def suggest_topic(request, search_value):
     if len(search_value) < 3 and search_value != "*":
         return JsonResponse({"error": "Merci de faire une recherche d'au minimum 3 caractères."}, status=400)
 
-    topics = Topic.objects.filter(name__icontains=search_value)[10:]
+    topics = Topic.objects.filter(name__icontains=search_value)
     return JsonResponse([{"id": topic.id, "name": topic.name} for topic in topics], status=200, safe=False)
 
 
@@ -161,10 +162,11 @@ def suggest_tag(request, search_value):
     if search_value == "*":  # Needed to prefetch all the tags
         tags = Tag.objects.all()
     else:
-        tags = Tag.objects.filter(name__icontains=search_value)\
-                          .annotate(used_count=Count("topic")).order_by("-used_count")[10:]
+        tags = Tag.objects.filter(name__icontains=search_value)
 
-    return JsonResponse([{"id": tag.id, "name": tag.name} for tag in tags], status=200, safe=False)
+    tags = tags.annotate(used_count=Count("topic")).order_by("-used_count")
+
+    return JsonResponse([{"id": tag.id, "name": tag.name, "used_count": tag.used_count} for tag in tags], status=200, safe=False)
 
 
 def search(request):
@@ -287,3 +289,22 @@ def profile(request):
     }
 
     return render(request, "display/profile.html", context)
+
+
+def add_comment(request, topic_id):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+
+    topic = get_object_or_404(Topic, pk=topic_id)
+    form = request.POST
+
+    if len(form["new-comment"]) == 0:
+        return JsonResponse({'message': "Vous ne pouvez pas envoyer un commentaire vide."}, status=400)
+
+    new_comment = Comment()
+    new_comment.content = form["new-comment"]
+    new_comment.posted_by = request.user
+    new_comment.topic = topic
+    new_comment.save()
+
+    return JsonResponse({'message': "Commentaire posté avec succès !"}, status=200)

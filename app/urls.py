@@ -31,6 +31,7 @@ urlpatterns = [
     path('topic/<int:topic_id>/like/', views.like_topic, name="upvote_topic"),
     path('topic/<int:topic_id>/removelike/', views.remove_like_topic, name="remove_upvote_topic"),
     path('topic/<int:topic_id>/addresource/', views.add_resource, name="add_resource"),
+    path('topic/<int:topic_id>/comment/', views.add_comment, name="add_comment"),
 
     # TODO : if there is a slash in the tag, the suggestion will not work.
     # TODO : We should use a POST request but there is a problem with the CSRF token.

@@ -84,14 +84,27 @@
                 <h3><u>Commentaires :</u></h3>
             </div>
 
-            {% for comment in comments %}
-                <div class="col-12">
-                    {{ comment }}
-                </div>
-            {% endfor %}
+            <div class="col-12">
+                <ul class="list-group">
+                    {% for comment in comments %}
+                        <li class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5>Par {{ comment.posted_by.username }}, {{ comment.post_date }}</h5>
+                            </div>
+                            <p class="mb-1">{{ comment.content }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <br />
+            </div>
 
             <div class="col-12">
-                <textarea disabled style="cursor: not-allowed;" placeholder="Nouveau message..." name="new-comment" id="new-comment" cols="30" rows="5"></textarea>
+                <form id="comment-form">
+                    {% csrf_token %}
+                    <textarea placeholder="Nouveau message..." name="new-comment" id="new-comment" cols="30" rows="5"></textarea>
+                    <button id="send-comment" class="btn btn-success">Envoyer</button>
+                </form>
             </div>
 
         </div>
