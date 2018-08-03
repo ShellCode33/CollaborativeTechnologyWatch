@@ -26,6 +26,7 @@ urlpatterns = [
 
     path('topic/<int:topic_id>/', views.display_topic, name="display_topic"),
     path('tag/<str:tag_id>/', views.display_tag, name="display_tag"),
+    path('tag/<str:tag_id>/setpicture/', views.set_tag_picture, name="set_tag_picture"),
 
     path('topic/new/', views.new_topic, name="new_topic"),
     path('topic/<int:topic_id>/like/', views.like_topic, name="upvote_topic"),

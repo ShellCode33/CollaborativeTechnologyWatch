@@ -1,10 +1,21 @@
 {% if new_tags|length > 0 %}
-    <div class="modal-body">
+    <form id="tag-pictures-form" class="modal-body">
+        {% csrf_token %}
         <p>Vous avez créé de nouveaux tags, vous pouvez si vous le souhaitez, en modifier l'image.</p><br />
 
         {% for tag in new_tags %}
             <label for="filename-tag-{{ tag.id }}"><b>{{ tag.name }}</b></label><br />
-            <input id="filename-tag-{{ tag.id }}" type="file" name="filename" accept="image/jpeg, image/png"><br /><br />
+            <input id="filename-tag-{{ tag.id }}" type="file" name="picture" accept="image/jpeg, image/png">
+
+            <br />
+            <br />
+
+            <div hidden class="progress" id="progressbar-tag-{{ tag.id }}">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+
+            <br />
+            <br />
         {% endfor %}
-    </div>
+    </form>
 {% endif %}

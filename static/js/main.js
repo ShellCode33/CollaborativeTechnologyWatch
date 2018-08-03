@@ -88,11 +88,73 @@ $(function() {
             url: '/topic/new/',
             type: 'post',
             data: post_parameters
-        }).done(function (new_tags) {
+        }).done(function (data) {
             $("#create-topic-modal").modal('toggle');
-            $("#topic-created-modal").find(".modal-body").remove();
-            $("#topic-created-modal").find(".modal-header").after($(new_tags));
+            let topic_created_modal = $("#topic-created-modal");
+            topic_created_modal.find(".modal-body").remove();
+            topic_created_modal.find(".modal-header").after($(data.new_tags_html));
+            topic_created_modal.find("#topic_link").attr("href", "/topic/" + data.topic_id);
             $("#topic-created-modal").modal('toggle');
+
+            $("[id^=filename-tag-]").change(function () {
+
+                let tag_id = $(this).attr("id").split("-")[2];
+                console.log("Setting picture of tag " + tag_id);
+
+                $("#progressbar-tag-" + tag_id).removeAttr("hidden");
+                let progress_bar = $("#progressbar-tag-" + tag_id + " > div");
+
+                //Reset progress bar
+                progress_bar.text('0%');
+                progress_bar.css('width', '0%');
+                progress_bar.attr("aria-valuenow", 0);
+
+                let form_data = new FormData();
+                form_data.append("csrfmiddlewaretoken", $("#tag-pictures-form > input").val());
+                form_data.append("picture", $(this)[0].files[0]);
+
+                $.ajax({
+                    // Your server script to process the upload
+                    url: '/tag/' + tag_id + "/setpicture/",
+                    type: 'POST',
+
+                    // Form data
+                    data: form_data,
+
+                    // Update progress bar
+                    xhr: function(){
+                        //Get XmlHttpRequest object
+                        let xhr = $.ajaxSettings.xhr();
+                        //Set onprogress event handler
+                        xhr.upload.onprogress = function(data) {
+                            let perc = Math.round((data.loaded / data.total) * 100);
+
+                            if(perc === 100) {
+                                progress_bar.text('Uploadé.');
+                            }
+
+                            else {
+                                progress_bar.text(perc + '%');
+                            }
+
+                            progress_bar.css('width', perc + '%');
+                            progress_bar.attr("aria-valuenow", perc);
+                        };
+
+                        return xhr;
+                    },
+
+                    // Tell jQuery not to process data or worry about content-type
+                    // You *must* include these options!
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).fail(function (data) {
+                    console.log("Image upload failed.");
+                    console.log(data);
+                });
+            });
+
         }).fail(function (data) {
             $("#error-new-topic .error-message").text(data["responseJSON"].error);
             $("#error-new-topic").removeAttr('hidden');

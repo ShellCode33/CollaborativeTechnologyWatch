@@ -46,6 +46,23 @@ def display_tag(request, tag_id):
 
 
 @login_required
+def set_tag_picture(request, tag_id):
+    if request.method != 'POST':
+        return JsonResponse({"error": "Vil coquin, n'essaye pas de gruger les images."}, status=405)
+
+    tag = get_object_or_404(Tag, pk=tag_id)
+    tag.picture = request.FILES["picture"]
+
+    try:
+        tag.full_clean()
+        tag.save()
+    except ValidationError as e:
+        return JsonResponse({'error': "Image Invalide."}, status=406)
+
+    return HttpResponse("OK")
+
+
+@login_required
 def like_topic(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
     like = Like.objects.filter(topic=topic, liked_by=request.user)
@@ -144,7 +161,9 @@ def new_topic(request):
     for tag in tags:
         topic.tags.add(tag)
 
-    return render(request, "display/topic_created_new_tags_view.html", {"new_tags": new_tags})
+    return JsonResponse({"new_tags_html": render(request, "display/topic_created_new_tags_view.html",
+                                                 {"new_tags": new_tags}).content.decode(),
+                         "topic_id": topic.id})
 
 
 def suggest_topic(request, search_value):
@@ -291,6 +310,7 @@ def profile(request):
     return render(request, "display/profile.html", context)
 
 
+@login_required
 def add_comment(request, topic_id):
     if request.method != "POST":
         return HttpResponseBadRequest()
